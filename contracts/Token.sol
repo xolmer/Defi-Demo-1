@@ -3,7 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 ///@author Kaveh Aidivandi
 
-interface RewardInterface {
+interface TokenInterface {
   function totalSupply() external view returns (uint256);
 
   function balanceOf(address tokenOwner)
@@ -31,9 +31,9 @@ interface RewardInterface {
   ) external returns (bool success);
 }
 
-contract Reward is RewardInterface {
-  string public name = "REWARD TOKEN";
-  string public symbol = "RWDT";
+contract Token is TokenInterface {
+  string public name = "BURGER COIN";
+  string public symbol = "BRGRC";
   uint256 public decimals = 18;
   uint256 public totalSupply = 1000000 * 10**decimals;
   address public owner;
