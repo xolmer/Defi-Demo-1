@@ -11,7 +11,7 @@ interface TokenInterface {
     view
     returns (uint256 balance);
 
-  function transfer(address _to, uint256 _amount)
+  function transfer(address _to, uint256 _value)
     external
     returns (bool success);
 
@@ -20,14 +20,14 @@ interface TokenInterface {
     view
     returns (uint256 remaining);
 
-  function approve(address _spender, uint256 _amount)
+  function approve(address _spender, uint256 _value)
     external
     returns (bool success);
 
   function transferFrom(
     address _from,
     address _to,
-    uint256 _amount
+    uint256 _value
   ) external returns (bool success);
 }
 
@@ -62,45 +62,45 @@ contract Token is TokenInterface {
   }
 
   // Transfer tokens from one address to another
-  function transfer(address _to, uint256 _amount)
+  function transfer(address _to, uint256 _value)
     public
     override
     returns (bool success)
   {
-    require(balances[msg.sender] >= _amount, "Insufficient balance");
+    require(balances[msg.sender] >= _value, "Insufficient balance");
 
-    balances[msg.sender] -= _amount;
-    balances[_to] += _amount;
+    balances[msg.sender] -= _value;
+    balances[_to] += _value;
 
-    emit Transfer(msg.sender, _to, _amount);
+    emit Transfer(msg.sender, _to, _value);
     return true;
   }
 
-  function approve(address _spender, uint256 _amount)
+  function approve(address _spender, uint256 _value)
     public
     override
     returns (bool success)
   {
-    allowance[msg.sender][_spender] = _amount;
-    emit Approval(msg.sender, _spender, _amount);
+    allowance[msg.sender][_spender] = _value;
+    emit Approval(msg.sender, _spender, _value);
     return true;
   }
 
   function transferFrom(
     address _from,
     address _to,
-    uint256 _amount
+    uint256 _value
   ) external override returns (bool success) {
-    require(balances[_from] >= _amount, "Insufficient balance");
-    require(allowance[_from][msg.sender] >= _amount);
+    require(balances[_from] >= _value, "Insufficient Token balance");
+    require(allowance[_from][msg.sender] >= _value);
     // Add the balance for transferfrom
-    balances[_from] -= _amount;
+    balances[_from] -= _value;
     // substract the balance for transferfrom
-    balances[_to] += _amount;
+    balances[_to] += _value;
 
-    allowance[_from][msg.sender] -= _amount;
+    allowance[_from][msg.sender] -= _value;
 
-    emit Transfer(_from, _to, _amount);
+    emit Transfer(_from, _to, _value);
     return true;
   }
 }
