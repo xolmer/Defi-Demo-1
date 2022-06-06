@@ -45,50 +45,77 @@ const NavBar = (props) => {
               </li> */}
             </ul>
             <div>
-              <button
-                type="button"
-                class="btn-hover  color-7"
-                data-bs-toggle="modal"
-                data-bs-target="#staticBackdrop"
-              >
-                {props.tokenBalance ? props.tokenBalance : "0"} BRGRC
-              </button>
+              {console.log(props.account + "account")}
+              {props.account != "0x0" ? (
+                <button
+                  type="button"
+                  className="btn-hover  color-7"
+                  data-bs-toggle="modal"
+                  data-bs-target="#staticBackdrop"
+                >
+                  {props.tokenBalance ? props.tokenBalance : "0"} BRGRC
+                </button>
+              ) : (
+                <button type="button" className="btn-hover  color-7">
+                  Connect to Wallet
+                </button>
+              )}
 
               <div
-                class="modal fade"
+                className="modal fade"
                 id="staticBackdrop"
                 data-bs-backdrop="static"
                 data-bs-keyboard="false"
-                tabindex="-1"
+                tabIndex="-1"
                 aria-labelledby="staticBackdropLabel"
                 aria-hidden="true"
               >
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="staticBackdropLabel">
+                <div className="modal-dialog">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title" id="staticBackdropLabel">
                         Your Account
                       </h5>
                       <button
                         type="button"
-                        class="btn-close"
+                        className="btn-close"
                         data-bs-dismiss="modal"
                         aria-label="Close"
                       ></button>
                     </div>
-                    <div class="modal-body">
-                      {props.account ? props.account : "0x0"}
-                      <p class="text-warning bg-dark">
-                        {props.balance ? props.balance : "0"} ETH
+                    <div className="modal-body">
+                      <p className="text-info bg-dark">
+                        ETH Account:{" "}
+                        {" " + props.account ? props.account : "0x0"}
                       </p>
-                      <p class="text-warning bg-dark">
-                        {props.tokenBalance ? props.tokenBalance : "0"} BRGRC
+                      <p className="text-warning bg-dark">
+                        Ethereum Balance :{" "}
+                        {" " + props.balance ? props.balance : "0"} ETH
+                      </p>
+                      <p className="text-warning bg-dark">
+                        BRGRC Balance :
+                        {" " + props.tokenBalance ? props.tokenBalance : "0"}{" "}
+                        BRGRC
+                      </p>
+                      <p className="text-warning bg-dark">
+                        Reward Balance:
+                        {" " + props.rewardBalance > 0
+                          ? props.rewardBalance
+                          : "0"}{" "}
+                        RWDT
+                      </p>
+                      <p className="text-warning bg-dark">
+                        Staking Balance :
+                        {" " + props.stakingBalance > 0
+                          ? props.stakingBalance
+                          : "0"}{" "}
+                        BRGRC
                       </p>
                     </div>
-                    <div class="modal-footer">
+                    <div className="modal-footer">
                       <button
                         type="button"
-                        class="btn btn-secondary"
+                        className="btn btn-secondary"
                         data-bs-dismiss="modal"
                       >
                         Close
