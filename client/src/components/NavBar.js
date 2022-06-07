@@ -45,7 +45,6 @@ const NavBar = (props) => {
               </li> */}
             </ul>
             <div>
-              {console.log(props.account + " account shamooshak")}
               {props.account != "0x0" ? (
                 <button
                   type="button"
