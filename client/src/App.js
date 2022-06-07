@@ -1,22 +1,35 @@
-import React, { Component, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import NavBar from "./components/NavBar";
 import Main from "./components/Main";
 import Token from "./abis/Token.json";
 import Reward from "./abis/Reward.json";
 import DeFi from "./abis/DeFi.json";
+import { ethers } from "ethers";
 import Web3 from "web3";
 import "./App.css";
 
-class App extends Component {
-  async UNSAFE_componentWillMount() {
-    await this.loadWeb3();
-    await this.loadBlockchainData();
-  }
+import { WalletLinkConnector } from "@web3-react/walletlink-connector";
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+import { InjectedConnector } from "@web3-react/injected-connector";
+import { useWeb3React } from "@web3-react/core";
 
-  async loadWeb3() {
+const App = () => {
+  const [account, setAccount] = useState("0x0");
+  const [balance, setBalance] = useState("");
+  const [token, setToken] = useState(null);
+  const [reward, setReward] = useState(null);
+  const [tokenBalance, setTokenBalance] = useState(null);
+  const [rewardBalance, setRewardBalance] = useState(null);
+  const [stakingBalance, setStakingBalance] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [defi, setDefi] = useState(null);
+
+  const btnHandler = async () => {
+    // Asking if metamask is already present or not
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       await window.ethereum.enable();
+      loadContracts();
     } else if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider);
     } else {
@@ -24,131 +37,202 @@ class App extends Component {
         "Non-Ethereum browser detected. You should consider trying MetaMask!"
       );
     }
-  }
-  async loadBlockchainData() {
+  };
+
+  useEffect(async () => {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      await window.ethereum.enable();
+      loadContracts();
+    } else if (window.web3) {
+      window.web3 = new Web3(window.web3.currentProvider);
+    } else {
+      window.alert(
+        "Non-Ethereum browser detected. You should consider trying MetaMask!"
+      );
+    }
+  }, []);
+  const loadContracts = async () => {
     const web3 = window.web3;
     const account = await web3.eth.getAccounts();
     const balance = await web3.eth.getBalance(account[0]);
-    this.setState({
-      account: account[0],
-      balance: web3.utils.fromWei(balance, "ether"),
-    });
+    setAccount(account[0]);
+    setBalance(web3.utils.fromWei(balance, "ether"));
     const networkID = await web3.eth.net.getId();
+    const tokenAddress = Token.networks[networkID].address;
+    const rewardAddress = Reward.networks[networkID].address;
+    const defiAddress = DeFi.networks[networkID].address;
+    const token = new web3.eth.Contract(Token.abi, tokenAddress);
+    const reward = new web3.eth.Contract(Reward.abi, rewardAddress);
+    const defi = new web3.eth.Contract(DeFi.abi, defiAddress);
+    setToken(token);
+    setReward(reward);
+    setDefi(defi);
+    const tokenBalance = await token.methods.balanceOf(account[0]).call();
+    const rewardBalance = await reward.methods.balanceOf(account[0]).call();
+    const stakingBalance = await defi.methods.stakingBalance(account[0]).call();
+    setTokenBalance(web3.utils.fromWei(tokenBalance, "ether"));
+    setRewardBalance(web3.utils.fromWei(rewardBalance, "ether"));
+    setStakingBalance(web3.utils.fromWei(stakingBalance, "ether"));
+    setLoading(false);
+  };
 
-    //Load token contract
-    const tokenData = Token.networks[networkID];
-    if (tokenData) {
-      const tokenContract = new web3.eth.Contract(Token.abi, tokenData.address);
-      this.setState({ token: tokenContract });
-      let tokenBalance = await tokenContract.methods
-        .balanceOf(account[0])
-        .call();
-      this.setState({
-        tokenBalance: web3.utils.fromWei(tokenBalance, "ether"),
-      });
-    } else {
-      window.alert("Token contract not deployed to detected network.");
-    }
-
-    //Load reward contract
-    const rewardData = Reward.networks[networkID];
-    if (rewardData) {
-      const rewardContract = new web3.eth.Contract(
-        Reward.abi,
-        rewardData.address
-      );
-      this.setState({ reward: rewardContract });
-      let rewardBalance = await rewardContract.methods
-        .balanceOf(account[0])
-        .call();
-      this.setState({
-        rewardBalance: web3.utils.fromWei(rewardBalance, "ether"),
-      });
-    } else {
-      window.alert("Reward contract not deployed to detected network.");
-    }
-    //Load defi contract
-    const defi = DeFi.networks[networkID];
-    if (defi) {
-      const defiContract = new web3.eth.Contract(DeFi.abi, defi.address);
-      this.setState({ defi: defiContract });
-      let stakingBalance = await defiContract.methods
-        .stakingBalance(this.state.account)
-        .call();
-      this.setState({
-        stakingBalance: web3.utils.fromWei(stakingBalance, "ether"),
-      });
-    } else {
-      window.alert("Defi contract not deployed to detected network.");
-    }
-    this.setState({ loading: false });
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      account: "0x0",
-      token: {},
-      reward: {},
-      defi: {},
-      tokenBalance: "0",
-      rewardBalance: "0",
-      stakingBalance: "0",
-      loading: true,
-    };
-  }
-
-  render() {
-    return (
-      <>
-        <NavBar
-          account={this.state.account}
-          balance={this.state.balance}
-          tokenBalance={this.state.tokenBalance}
-        />
-        {this.state.loading ? (
-          <div className="d-flex justify-content-center">
-            <div className="spinner-border text-primary" role="status"></div>
-          </div>
-        ) : (
-          ""
-        )}
-        {/* <div className="container-sm">
-          <div className="p-5 mb-4 bg-light rounded-3">
-            <div className="container-fluid py-5"></div>
-          </div>
-        </div> */}
-        {/* <div className="row justify-content-center">
-          <div className="col-md-6 bg-light text-center rounded-3">
-            <div className="container-fluid py-5"></div>
-          </div>
-        </div> */}
-
-        <div className="container ">
-          <div className="row justify-content-center">
-            <div className="col-lg-8 ">
-              <main className="text-center bg-light ml-auto mr-auto rounded-3">
-                {this.state.account != "0x0" ? (
-                  <Main
-                    account={this.state.account}
-                    balance={this.state.balance}
-                    tokenBalance={this.state.tokenBalance}
-                    rewardBalance={this.state.rewardBalance}
-                    stakingBalance={this.state.stakingBalance}
-                    token={this.state.token}
-                    reward={this.state.reward}
-                    defi={this.state.defi}
-                  />
-                ) : (
-                  ""
-                )}
-              </main>
-            </div>
+  return (
+    <>
+      <NavBar
+        account={account}
+        tokenBalance={tokenBalance}
+        rewardBalance={rewardBalance}
+        stakingBalance={stakingBalance}
+        balance={balance}
+        btnHandler={btnHandler}
+      />
+      {loading ? (
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border text-primary" role="status"></div>
+        </div>
+      ) : (
+        ""
+      )}
+      <div className="container ">
+        <div className="row justify-content-center">
+          <div className="col-lg-8 ">
+            <main className="text-center bg-light ml-auto mr-auto rounded-3">
+              {account != "0x0" ? (
+                <Main
+                  account={account}
+                  token={token}
+                  reward={reward}
+                  defi={defi}
+                  tokenBalance={tokenBalance}
+                  rewardBalance={rewardBalance}
+                  stakingBalance={stakingBalance}
+                />
+              ) : (
+                ""
+              )}
+            </main>
           </div>
         </div>
-      </>
-    );
-  }
-}
+      </div>
+    </>
+  );
+};
 
 export default App;
+
+// async function loadWeb3() {
+//   if (window.ethereum) {
+//     window.web3 = new Web3(window.ethereum);
+//     await window.ethereum.enable();
+//   } else if (window.web3) {
+//     window.web3 = new Web3(window.web3.currentProvider);
+//   } else {
+//     window.alert(
+//       "Non-Ethereum browser detected. You should consider trying MetaMask!"
+//     );
+//   }
+// }
+
+// async function loadBlockchainData() {
+//   const web3 = window.web3;
+//   const accounts = await web3.eth.getAccounts();
+//   setState({ ...state, account: accounts[0] });
+//   const networkId = await web3.eth.net.getId();
+//   const networkData = Token.networks[networkId];
+//   const token = new web3.eth.Contract(
+//     Token.abi,
+//     networkData ? networkData.address : "0"
+//   );
+//   const reward = new web3.eth.Contract(
+//     Reward.abi,
+//     networkData ? networkData.address : "0"
+//   );
+//   const defi = new web3.eth.Contract(
+//     DeFi.abi,
+//     networkData ? networkData.address : ""
+//   );
+//   const tokenBalance = await token.methods.balanceOf(accounts[0]).call();
+//   const rewardBalance = await reward.methods.balanceOf(accounts[0]).call();
+//   const stakingBalance = await defi.methods
+//     .stakingBalance(accounts[0])
+//     .call();
+//   setState({
+//     ...state,
+//     token,
+//     reward,
+//     defi,
+//     tokenBalance,
+//     rewardBalance,
+//     stakingBalance,
+//     loading: false,
+//   });
+// }
+
+// useEffect(() => {
+//   loadWeb3().then(() => loadBlockchainData());
+// }, []);
+
+// const detectCurrentProvider = () => {
+//   let provider;
+//   if (window.ethereum) {
+//     provider = window.ethereum;
+//   } else if (window.web3) {
+//     provider = window.web3.currentProvider;
+//   } else {
+//     console.log(
+//       "Non-Ethereum browser detected. You should consider trying MetaMask!"
+//     );
+//   }
+//   return provider;
+// };
+
+// const onConnect = async () => {
+//   try {
+//     const currentProvider = detectCurrentProvider();
+//     if (currentProvider) {
+//       if (currentProvider !== window.ethereum) {
+//         console.log(
+//           "Non-Ethereum browser detected. You should consider trying MetaMask!"
+//         );
+//       }
+
+//       const accounts = await currentProvider.request({
+//         method: "eth_requestAccounts",
+//       });
+//       console.log(accounts + "accounts check 1");
+//       setState({ ...state, account: accounts[0] });
+//       const web3 = new Web3(currentProvider);
+//       const networkId = await web3.eth.net.getId();
+//       const networkData = Token.networks[networkId];
+//       const token = new web3.eth.Contract(Token.abi, networkData.address);
+//       const reward = new web3.eth.Contract(Reward.abi, networkData.address);
+//       const defi = new web3.eth.Contract(DeFi.abi, networkData.address);
+
+//       const tokenBalance = await token.methods.balanceOf(accounts[0]).call();
+//       const rewardBalance = await reward.methods
+//         .balanceOf(accounts[0])
+//         .call();
+//       const stakingBalance = await defi.methods
+//         .stakingBalance(accounts[0])
+//         .call();
+
+//       setState({
+//         account: accounts[0],
+//         token: token,
+//         reward: reward,
+//         defi: defi,
+//         tokenBalance: tokenBalance,
+//         rewardBalance: rewardBalance,
+//         stakingBalance: stakingBalance,
+//         loading: false,
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+// useEffect(() => {
+//   onConnect();
+// }, []);

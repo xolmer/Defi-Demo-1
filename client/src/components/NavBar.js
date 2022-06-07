@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import bank from "../logo1.png";
 const NavBar = (props) => {
   return (
@@ -45,7 +45,7 @@ const NavBar = (props) => {
               </li> */}
             </ul>
             <div>
-              {console.log(props.account + "account")}
+              {console.log(props.account + " account shamooshak")}
               {props.account != "0x0" ? (
                 <button
                   type="button"
@@ -56,7 +56,11 @@ const NavBar = (props) => {
                   {props.tokenBalance ? props.tokenBalance : "0"} BRGRC
                 </button>
               ) : (
-                <button type="button" className="btn-hover  color-7">
+                <button
+                  type="button"
+                  className="btn-hover  color-7"
+                  onClick={props.btnHandler}
+                >
                   Connect to Wallet
                 </button>
               )}
