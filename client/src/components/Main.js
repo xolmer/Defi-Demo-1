@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import burger from "../hamburger-xxl.png";
 const Main = (props) => {
+  const [formData, setFormData] = useState({
+    amount: "",
+  });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    props.stakeHandler(formData.amount);
+  };
+
   return (
     <>
       <div className="container">
@@ -32,7 +40,7 @@ const Main = (props) => {
                 </tbody>
               </table>
               <div className="mb-2">
-                <form className=" mb-2">
+                <form onSubmit={handleSubmit} className="mb-2">
                   <div>
                     <label
                       className="float-start"
@@ -41,10 +49,18 @@ const Main = (props) => {
                       <b>Stake Tokens</b>
                     </label>
                     <span className="float-end" style={{ marginRight: "8px" }}>
-                      <b>Balance:</b>
+                      <b>Balance:</b> {props.tokenBalance} BRGRC
                     </span>
                     <div className="input-group mb-4">
-                      <input type="text" placeholder="0" required />
+                      <input
+                        onChange={(e) =>
+                          setFormData({ ...formData, amount: e.target.value })
+                        }
+                        value={formData.amount}
+                        type="text"
+                        name="amount"
+                        id="amount"
+                      />
                       <div className="input-group-open">
                         &nbsp;&nbsp;
                         <img src={burger} alt="tether" height="32" />

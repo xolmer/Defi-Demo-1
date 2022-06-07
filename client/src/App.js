@@ -17,6 +17,7 @@ const App = () => {
   const [stakingBalance, setStakingBalance] = useState(null);
   const [loading, setLoading] = useState(true);
   const [defi, setDefi] = useState(null);
+  const [defiAddress, setDefiAddress] = useState("");
 
   const btnHandler = async () => {
     // Asking if metamask is already present or not
@@ -28,7 +29,7 @@ const App = () => {
       window.web3 = new Web3(window.web3.currentProvider);
     } else {
       window.alert(
-        "Non-Ethereum browser detected. You should consider trying MetaMask!"
+        "Please install MetaMask to use this dapp. You can find it at https://metamask.io/"
       );
     }
   };
@@ -42,7 +43,7 @@ const App = () => {
       window.web3 = new Web3(window.web3.currentProvider);
     } else {
       window.alert(
-        "Non-Ethereum browser detected. You should consider trying MetaMask!"
+        "Please install MetaMask to use this dapp. You can find it at https://metamask.io/"
       );
     }
   }, []);
@@ -53,15 +54,20 @@ const App = () => {
     setAccount(account[0]);
     setBalance(web3.utils.fromWei(balance, "ether"));
     const networkID = await web3.eth.net.getId();
+
     const tokenAddress = Token.networks[networkID].address;
     const rewardAddress = Reward.networks[networkID].address;
     const defiAddress = DeFi.networks[networkID].address;
+    console.log(defiAddress + " DEFI ADDresses");
+
     const token = new web3.eth.Contract(Token.abi, tokenAddress);
     const reward = new web3.eth.Contract(Reward.abi, rewardAddress);
     const defi = new web3.eth.Contract(DeFi.abi, defiAddress);
+
     setToken(token);
     setReward(reward);
     setDefi(defi);
+    setDefiAddress(defiAddress);
     const tokenBalance = await token.methods.balanceOf(account[0]).call();
     const rewardBalance = await reward.methods.balanceOf(account[0]).call();
     const stakingBalance = await defi.methods.stakingBalance(account[0]).call();
@@ -69,6 +75,54 @@ const App = () => {
     setRewardBalance(web3.utils.fromWei(rewardBalance, "ether"));
     setStakingBalance(web3.utils.fromWei(stakingBalance, "ether"));
     setLoading(false);
+  };
+
+  // Stake Function
+  // Deposite Function
+  // Withdraw Function
+  // Claim Reward Function
+
+  // stakeTokens = (amount) => {
+  //   this.setState({ loading: true });
+  //   this.state.tether.methods
+  //     .approve(this.state.decentralBank._address, amount)
+  //     .send({ from: this.state.account })
+  //     .on("transactionHash", (hash) => {
+  //       this.state.decentralBank.methods
+  //         .depositTokens(amount)
+  //         .send({ from: this.state.account })
+  //         .on("transactionHash", (hash) => {
+  //           this.setState({ loading: false });
+  //         });
+  //     });
+  // };
+
+  // unstakeTokens = () => {
+  //   this.setState({ loading: true });
+  //   this.state.decentralBank.methods
+  //     .unstakeTokens()
+  //     .send({ from: this.state.account })
+  //     .on("transactionHash", (hash) => {
+  //       this.setState({ loading: false });
+  //     });
+  // };
+
+  const [stakeTokens, setStakeTokens] = useState(null);
+  const [unstakeTokens, setUnstakeTokens] = useState(null);
+
+  const stakeHandler = async (amount) => {
+    setLoading(true);
+    token.methods
+      .approve(defiAddress, amount)
+      .send({ from: account })
+      .on("transactionHash", (hash) => {
+        defi.methods
+          .depositTokens(amount)
+          .send({ from: account })
+          .on("transactionHash", (hash) => {
+            setLoading(false);
+          });
+      });
   };
 
   return (
@@ -92,19 +146,16 @@ const App = () => {
         <div className="row justify-content-center">
           <div className="col-lg-8 ">
             <main className="text-center bg-light ml-auto mr-auto rounded-3">
-              {account != "0x0" ? (
-                <Main
-                  account={account}
-                  token={token}
-                  reward={reward}
-                  defi={defi}
-                  tokenBalance={tokenBalance}
-                  rewardBalance={rewardBalance}
-                  stakingBalance={stakingBalance}
-                />
-              ) : (
-                ""
-              )}
+              <Main
+                account={account}
+                token={token}
+                reward={reward}
+                defi={defi}
+                tokenBalance={tokenBalance}
+                rewardBalance={rewardBalance}
+                stakingBalance={stakingBalance}
+                stakeHandler={stakeHandler}
+              />
             </main>
           </div>
         </div>

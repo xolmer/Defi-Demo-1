@@ -19,8 +19,8 @@ contract DeFi {
   constructor(Token _token, Reward _reward) {
     owner = msg.sender;
     name = "DEFI";
-    reward = _reward;
     token = _token;
+    reward = _reward;
   }
 
   //staking function
