@@ -1,44 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity >=0.5.0 <0.9.0;
 
 ///@author Kaveh Aidivandi
 
-interface TokenInterface {
-  function totalSupply() external view returns (uint256);
-
-  function balanceOf(address tokenOwner)
-    external
-    view
-    returns (uint256 balance);
-
-  function transfer(address _to, uint256 _value)
-    external
-    returns (bool success);
-
-  function allowance(address tokenOwner, address spender)
-    external
-    view
-    returns (uint256 remaining);
-
-  function approve(address _spender, uint256 _value)
-    external
-    returns (bool success);
-
-  function transferFrom(
-    address _from,
-    address _to,
-    uint256 _value
-  ) external returns (bool success);
-}
-
-contract Token is TokenInterface {
+contract Token {
   string public name = "BURGER COIN";
   string public symbol = "BRGRC";
   uint256 public decimals = 18;
   uint256 public totalSupply = 1000000 * 10**decimals;
   address public owner;
 
-  mapping(address => uint256) public balances;
+  mapping(address => uint256) public balanceOf;
 
   // Allowance is the amount of tokens that an owner allowed to a spender.
   mapping(address => mapping(address => uint256)) public allowance;
@@ -49,28 +21,15 @@ contract Token is TokenInterface {
 
   constructor() {
     owner = msg.sender;
-    balances[owner] = totalSupply;
-  }
-
-  function balanceOf(address tokenOwner)
-    public
-    view
-    override
-    returns (uint256 balance)
-  {
-    return balances[tokenOwner];
+    balanceOf[owner] = totalSupply;
   }
 
   // Transfer tokens from one address to another
-  function transfer(address _to, uint256 _value)
-    public
-    override
-    returns (bool success)
-  {
-    require(balances[msg.sender] >= _value, "Insufficient balance");
+  function transfer(address _to, uint256 _value) public returns (bool success) {
+    require(balanceOf[msg.sender] >= _value, "Insufficient balance");
 
-    balances[msg.sender] -= _value;
-    balances[_to] += _value;
+    balanceOf[msg.sender] -= _value;
+    balanceOf[_to] += _value;
 
     emit Transfer(msg.sender, _to, _value);
     return true;
@@ -78,7 +37,6 @@ contract Token is TokenInterface {
 
   function approve(address _spender, uint256 _value)
     public
-    override
     returns (bool success)
   {
     allowance[msg.sender][_spender] = _value;
@@ -89,18 +47,34 @@ contract Token is TokenInterface {
   function transferFrom(
     address _from,
     address _to,
-    uint256 _value
-  ) external override returns (bool success) {
-    require(balances[_from] >= _value, "Insufficient Token balance");
-    require(allowance[_from][msg.sender] >= _value);
-    // Add the balance for transferfrom
-    balances[_from] -= _value;
-    // substract the balance for transferfrom
-    balances[_to] += _value;
+    uint256 _amount
+  ) public payable returns (bool success) {
+    require(balanceOf[_from] >= _amount, "Insufficient Token balance");
+    require(allowance[_from][msg.sender] >= _amount);
 
-    allowance[_from][msg.sender] -= _value;
-
-    emit Transfer(_from, _to, _value);
+    balanceOf[_from] -= _amount;
+    balanceOf[_to] += _amount;
+    allowance[_from][msg.sender] -= _amount;
+    transfer(_to, _amount);
+    emit Transfer(_from, _to, _amount);
     return true;
   }
 }
+
+// function transferFrom(
+//   address _from,
+//   address _to,
+//   uint256 _value
+// ) public returns (bool success) {
+//   require(balanceOf[_from] >= _value, "Insufficient Token balance");
+//   require(allowance[_from][msg.sender] >= _value);
+//   // Add the balance for transferfrom
+//   balanceOf[_from] -= _value;
+//   // substract the balance for transferfrom
+//   balanceOf[_to] += _value;
+
+//   allowance[_from][msg.sender] -= _value;
+
+//   emit Transfer(_from, _to, _value);
+//   return true;
+// }

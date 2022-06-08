@@ -1,8 +1,8 @@
-const defi = artifacts.require("DeFi");
+const DeFi = artifacts.require("DeFi");
 
 module.exports = async function issueRewards(callback) {
-  let defi = await defi.deployed();
-  await defi.issueRewards();
-  console.log("Rewards Issued successfully!");
+  let decentralBank = await DeFi.deployed();
+  await decentralBank.issueRewards();
+  console.log("Tokens have been issued successfully!");
   callback();
 };

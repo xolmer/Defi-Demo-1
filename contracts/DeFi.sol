@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity >=0.5.0 <0.9.0;
 
 import "./Token.sol";
 import "./RWD.sol";
@@ -23,7 +23,7 @@ contract DeFi {
   }
 
   //staking function
-  function depositTokens(uint256 _value) public {
+  function depositTokens(uint256 _value) public payable {
     require(_value > 0, "Amount must be greater than 0");
     //Transfer tokens to this contract address for staking
     token.transferFrom(msg.sender, address(this), _value);
@@ -39,6 +39,18 @@ contract DeFi {
     hasStaked[msg.sender] = true;
   }
 
+  function withdrawTokens() public {
+    uint256 balance = stakingBalance[msg.sender];
+    require(balance > 0, "You must have staked tokens to withdraw");
+
+    //transfer tokens to sender
+    token.transfer(msg.sender, balance);
+    //updating staking balance
+    stakingBalance[msg.sender] = 0;
+    //updating staking status
+    isStaking[msg.sender] = false;
+  }
+
   function issueRewards() public {
     //calculate total staked tokens
     require(msg.sender == owner, "The caller must be the owner");
@@ -51,17 +63,5 @@ contract DeFi {
         rwd.transfer(staker, earned);
       }
     }
-  }
-
-  function withdrawTokens() public {
-    uint256 balance = stakingBalance[msg.sender];
-    require(balance > 0, "You must have staked tokens to withdraw");
-
-    //transfer tokens to sender
-    token.transfer(msg.sender, balance);
-    //updating staking balance
-    stakingBalance[msg.sender] = 0;
-    //updating staking status
-    isStaking[msg.sender] = false;
   }
 }

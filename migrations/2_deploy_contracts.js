@@ -1,5 +1,5 @@
-const Token = artifacts.require("./Token.sol");
 const RWD = artifacts.require("./RWD.sol");
+const Token = artifacts.require("./Token.sol");
 const DeFi = artifacts.require("./DeFi.sol");
 
 module.exports = async function (deployer, network, accounts) {

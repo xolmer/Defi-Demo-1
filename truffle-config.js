@@ -8,15 +8,13 @@ module.exports = {
   networks: {
     xolmer: {
       network_id: "*",
-      port: 6969,
+      port: 7545,
       host: "127.0.0.1",
-      gas: "1000000",
-      gasPrice: "1000000",
     },
   },
   compilers: {
     solc: {
-      version: "^0.8.0",
+      version: "^0.7.0",
       optimizer: {
         enabled: true,
         runs: 200,

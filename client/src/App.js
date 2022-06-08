@@ -54,6 +54,7 @@ const App = () => {
     setAccount(account[0]);
     setBalance(web3.utils.fromWei(balance, "ether"));
     const networkID = await web3.eth.net.getId();
+    console.log(networkID);
 
     const tokenAddress = Token.networks[networkID].address;
     const rewardAddress = Reward.networks[networkID].address;
