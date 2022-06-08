@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import NavBar from "./components/NavBar";
 import Main from "./components/Main";
+
 import Token from "./abis/Token.json";
-import Reward from "./abis/RWD.json";
 import DeFi from "./abis/DeFi.json";
 import Web3 from "web3";
+import Reward from "./abis/RWD.json";
 import "./App.css";
 
 const App = () => {
@@ -12,9 +13,9 @@ const App = () => {
   const [balance, setBalance] = useState("");
   const [token, setToken] = useState(null);
   const [reward, setReward] = useState(null);
-  const [tokenBalance, setTokenBalance] = useState(null);
-  const [rewardBalance, setRewardBalance] = useState(null);
-  const [stakingBalance, setStakingBalance] = useState(null);
+  const [tokenBalance, setTokenBalance] = useState(0);
+  const [rewardBalance, setRewardBalance] = useState(0);
+  const [stakingBalance, setStakingBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [defi, setDefi] = useState(null);
   const [defiAddress, setDefiAddress] = useState("");
@@ -54,11 +55,12 @@ const App = () => {
     setAccount(account[0]);
     setBalance(web3.utils.fromWei(balance, "ether"));
     const networkID = await web3.eth.net.getId();
-    console.log(networkID);
+    console.log(networkID + " rinkeby");
 
     const tokenAddress = Token.networks[networkID].address;
     const rewardAddress = Reward.networks[networkID].address;
     const defiAddress = DeFi.networks[networkID].address;
+
     console.log(defiAddress + " DEFI ADDresses");
 
     const token = new web3.eth.Contract(Token.abi, tokenAddress);
@@ -69,6 +71,7 @@ const App = () => {
     setReward(reward);
     setDefi(defi);
     setDefiAddress(defiAddress);
+
     const tokenBalance = await token.methods.balanceOf(account[0]).call();
     const rewardBalance = await reward.methods.balanceOf(account[0]).call();
     const stakingBalance = await defi.methods.stakingBalance(account[0]).call();
@@ -78,48 +81,34 @@ const App = () => {
     setLoading(false);
   };
 
-  // Stake Function
-  // Deposite Function
-  // Withdraw Function
-  // Claim Reward Function
-
-  // stakeTokens = (amount) => {
-  //   this.setState({ loading: true });
-  //   this.state.tether.methods
-  //     .approve(this.state.decentralBank._address, amount)
-  //     .send({ from: this.state.account })
-  //     .on("transactionHash", (hash) => {
-  //       this.state.decentralBank.methods
-  //         .depositTokens(amount)
-  //         .send({ from: this.state.account })
-  //         .on("transactionHash", (hash) => {
-  //           this.setState({ loading: false });
-  //         });
-  //     });
-  // };
-
-  // unstakeTokens = () => {
-  //   this.setState({ loading: true });
-  //   this.state.decentralBank.methods
-  //     .unstakeTokens()
-  //     .send({ from: this.state.account })
-  //     .on("transactionHash", (hash) => {
-  //       this.setState({ loading: false });
-  //     });
-  // };
-
-  const stakeHandler = async (amount) => {
+  //Deposite Token
+  const stakeHandler = async (_value) => {
     setLoading(true);
     token.methods
-      .approve(defiAddress, amount)
+      .approve(defiAddress, _value)
       .send({ from: account })
-      .on("transactionHash", (hash) => {
-        defi.methods
-          .depositTokens(amount)
+      .on("receipt", async (receipt) => {
+        console.log(receipt);
+        await defi.methods
+
+          .depositTokens(_value)
           .send({ from: account })
-          .on("transactionHash", (hash) => {
+          .on("receipt", async (receipt) => {
+            loadContracts();
             setLoading(false);
           });
+      });
+  };
+
+  //withdraw Token
+  const withdrawHandler = async () => {
+    setLoading(true);
+    defi.methods
+      .withdrawTokens()
+      .send({ from: account })
+      .on("receipt", async (receipt) => {
+        loadContracts();
+        setLoading(false);
       });
   };
 
@@ -153,6 +142,7 @@ const App = () => {
                 rewardBalance={rewardBalance}
                 stakingBalance={stakingBalance}
                 stakeHandler={stakeHandler}
+                withdrawHandler={withdrawHandler}
               />
             </main>
           </div>

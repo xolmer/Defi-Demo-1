@@ -9,7 +9,7 @@ module.exports = async function (deployer, network, accounts) {
   await deployer.deploy(RWD);
   const rwd = await RWD.deployed();
 
-  await deployer.deploy(DeFi, rwd.address, token.address);
+  await deployer.deploy(DeFi, token.address, rwd.address);
   const defi = await DeFi.deployed();
   //transfer all Rewards to DeFi
   await rwd.transfer(defi.address, "1000000000000000000000000");

@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useRef } from "react";
+import AirDrop from "./AirDrop";
 import burger from "../hamburger-xxl.png";
 const Main = (props) => {
-  const [formData, setFormData] = useState({
-    amount: "",
-  });
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    props.stakeHandler(formData.amount);
+  const amountRef = useRef(null);
+  const submitHandler = (event) => {
+    event.preventDefault();
+    let amount = amountRef.current.value.toString();
+    amount = window.web3.utils.toWei(amount, "Ether");
+    props.stakeHandler(amount);
+    amountRef.current.value = "";
   };
 
   return (
@@ -40,7 +42,8 @@ const Main = (props) => {
                 </tbody>
               </table>
               <div className="mb-2">
-                <form onSubmit={handleSubmit} className="mb-2">
+                {/* <form onSubmit={handleSubmit} className="mb-2"> */}
+                <form onSubmit={submitHandler} className="mb-2">
                   <div>
                     <label
                       className="float-start"
@@ -52,7 +55,8 @@ const Main = (props) => {
                       <b>Balance:</b> {props.tokenBalance} BRGRC
                     </span>
                     <div className="input-group mb-4">
-                      <input
+                      <input ref={amountRef} />
+                      {/* <input
                         onChange={(e) =>
                           setFormData({ ...formData, amount: e.target.value })
                         }
@@ -60,7 +64,7 @@ const Main = (props) => {
                         type="text"
                         name="amount"
                         id="amount"
-                      />
+                      /> */}
                       <div className="input-group-open">
                         &nbsp;&nbsp;
                         <img src={burger} alt="tether" height="32" />
@@ -74,10 +78,16 @@ const Main = (props) => {
                   </div>
                 </form>
 
-                <button type="submit" className="btn-hover  color-7">
+                <button
+                  type="submit"
+                  className="btn-hover  color-7"
+                  onClick={props.withdrawHandler}
+                >
                   Withdraw
                 </button>
-                <div className="card-body text-center">AIRDROP</div>
+                <div className="card-body text-center">
+                  AIRDROP <AirDrop />
+                </div>
               </div>
             </main>
           </div>

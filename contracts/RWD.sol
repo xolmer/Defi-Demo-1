@@ -7,7 +7,7 @@ contract RWD {
   string public name = "FRIES TOKEN";
   string public symbol = "FRI";
   uint256 public decimals = 18;
-  uint256 public totalSupply = 1000000 * 10**decimals;
+  uint256 public totalSupply = 1000000000000000000000000;
   address public owner;
 
   mapping(address => uint256) public balanceOf;
