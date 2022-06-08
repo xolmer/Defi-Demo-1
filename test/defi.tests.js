@@ -1,9 +1,9 @@
 const Token = artifacts.require("./Token.sol");
-const Reward = artifacts.require("./Reward.sol");
+const RWD = artifacts.require("./RWD.sol");
 const DeFi = artifacts.require("./DeFi.sol");
 
 contract("DeFi", ([owner, customer]) => {
-  let token, reward, defi;
+  let token, rwd, defi;
 
   function tokens(number) {
     return web3.utils.toWei(number.toString(), "ether");
@@ -11,10 +11,10 @@ contract("DeFi", ([owner, customer]) => {
 
   before(async () => {
     token = await Token.new();
-    reward = await Reward.new();
-    defi = await DeFi.new(token.address, reward.address);
+    rwd = await RWD.new();
+    defi = await DeFi.new(token.address, rwd.address);
     // transfer all tokens to defi contract
-    await reward.transfer(defi.address, tokens(1000000));
+    await rwd.transfer(defi.address, tokens(1000000));
     // transfer 100 tokens to customer
     await token.transfer(customer, tokens(100), { from: owner });
   });
@@ -28,15 +28,15 @@ contract("DeFi", ([owner, customer]) => {
   });
   describe("Reward Deployment", async () => {
     it("Matches Reward name successfully", async () => {
-      let reward = await Reward.new();
-      const name = await reward.name();
-      assert.equal(name, "REWARD TOKEN");
+      let rwd = await RWD.new();
+      const name = await rwd.name();
+      assert.equal(name, "FRIES TOKEN");
     });
   });
 
   describe("DeFi Deployment", async () => {
     it("Contract has tokens", async () => {
-      let balance = await reward.balanceOf(defi.address);
+      let balance = await rwd.balanceOf(defi.address);
       assert.equal(balance, tokens(1000000));
     });
   });

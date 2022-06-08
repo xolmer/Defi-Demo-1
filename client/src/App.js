@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import NavBar from "./components/NavBar";
 import Main from "./components/Main";
 import Token from "./abis/Token.json";
-import Reward from "./abis/Reward.json";
+import Reward from "./abis/RWD.json";
 import DeFi from "./abis/DeFi.json";
 import Web3 from "web3";
 import "./App.css";
@@ -106,9 +106,6 @@ const App = () => {
   //       this.setState({ loading: false });
   //     });
   // };
-
-  const [stakeTokens, setStakeTokens] = useState(null);
-  const [unstakeTokens, setUnstakeTokens] = useState(null);
 
   const stakeHandler = async (amount) => {
     setLoading(true);

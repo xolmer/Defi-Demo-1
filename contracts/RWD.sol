@@ -3,7 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 ///@author Kaveh Aidivandi
 
-interface RewardInterface {
+interface RWDInterface {
   function totalSupply() external view returns (uint256);
 
   function balanceOf(address tokenOwner)
@@ -31,9 +31,9 @@ interface RewardInterface {
   ) external returns (bool success);
 }
 
-contract Reward is RewardInterface {
-  string public name = "REWARD TOKEN";
-  string public symbol = "RWDT";
+contract RWD is RWDInterface {
+  string public name = "FRIES TOKEN";
+  string public symbol = "FRI";
   uint256 public decimals = 18;
   uint256 public totalSupply = 1000000 * 10**decimals;
   address public owner;
@@ -91,7 +91,7 @@ contract Reward is RewardInterface {
     address _to,
     uint256 _value
   ) external override returns (bool success) {
-    require(balances[_from] >= _value, "Insufficient Reward balance");
+    require(balances[_from] >= _value, "Insufficient FRIES balance");
     require(allowance[_from][msg.sender] >= _value);
     // Add the balance for transferfrom
     balances[_from] -= _value;

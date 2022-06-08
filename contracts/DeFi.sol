@@ -2,13 +2,13 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import "./Token.sol";
-import "./Reward.sol";
+import "./RWD.sol";
 
 contract DeFi {
+  string public name = "DeFi";
   address public owner;
-  string public name;
   Token public token;
-  Reward public reward;
+  RWD public rwd;
 
   address[] public stakers;
 
@@ -16,11 +16,10 @@ contract DeFi {
   mapping(address => bool) public hasStaked;
   mapping(address => bool) public isStaking;
 
-  constructor(Token _token, Reward _reward) {
+  constructor(Token _token, RWD _rwd) {
     owner = msg.sender;
-    name = "DEFI";
     token = _token;
-    reward = _reward;
+    rwd = _rwd;
   }
 
   //staking function
@@ -49,7 +48,7 @@ contract DeFi {
       uint256 earned = stakingBalance[staker] / 9;
       //transfer reward to staker
       if (earned > 0) {
-        reward.transfer(staker, earned);
+        rwd.transfer(staker, earned);
       }
     }
   }
