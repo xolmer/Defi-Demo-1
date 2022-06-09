@@ -1,39 +1,28 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-const Airdrop = () => {
-  const { initialMinute = 0, initialSeconds = 0 } = 20;
-  const [minutes, setMinutes] = useState(initialMinute);
-  const [seconds, setSeconds] = useState(initialSeconds);
-  useEffect(() => {
-    let myInterval = setInterval(() => {
-      if (seconds > 0) {
-        setSeconds(seconds - 1);
+function Airdrop(props) {
+  const [counter, setCounter] = useState(20);
+  let timer;
+  let stakingBalance = props.stakingBalance;
+
+  useEffect(
+    (stakingBalance) => {
+      if (counter > 0) {
+        timer = setInterval(() => setCounter(counter - 1), 1000);
       }
-      if (seconds === 0) {
-        if (minutes === 0) {
-          clearInterval(myInterval);
-        } else {
-          setMinutes(minutes - 1);
-          setSeconds(59);
-        }
-      }
-    }, 1000);
-    return () => {
-      clearInterval(myInterval);
-    };
-  });
+      return () => {
+        clearInterval(timer);
+        timer = 0;
+      };
+    },
+    [counter]
+  );
 
   return (
-    <div style={{ color: "black" }}>
-      {minutes === 0 && seconds === 0 ? null : (
-        <h1 style={{ color: "black" }}>
-          {" "}
-          {minutes}:{seconds < 20 ? `0${seconds}` : seconds}
-        </h1>
-      )}
+    <div className="App">
+      <div>Countdown: {counter}</div>
     </div>
   );
-};
+}
 
 export default Airdrop;

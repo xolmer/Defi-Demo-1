@@ -47,7 +47,7 @@ const App = () => {
         "Please install MetaMask to use this dapp. You can find it at https://metamask.io/"
       );
     }
-  }, []);
+  }, [btnHandler]);
   const loadContracts = async () => {
     const web3 = window.web3;
     const account = await web3.eth.getAccounts();
@@ -55,13 +55,10 @@ const App = () => {
     setAccount(account[0]);
     setBalance(web3.utils.fromWei(balance, "ether"));
     const networkID = await web3.eth.net.getId();
-    console.log(networkID + " rinkeby");
 
     const tokenAddress = Token.networks[networkID].address;
     const rewardAddress = Reward.networks[networkID].address;
     const defiAddress = DeFi.networks[networkID].address;
-
-    console.log(defiAddress + " DEFI ADDresses");
 
     const token = new web3.eth.Contract(Token.abi, tokenAddress);
     const reward = new web3.eth.Contract(Reward.abi, rewardAddress);
@@ -88,7 +85,6 @@ const App = () => {
       .approve(defiAddress, _value)
       .send({ from: account })
       .on("receipt", async (receipt) => {
-        console.log(receipt);
         await defi.methods
 
           .depositTokens(_value)

@@ -86,7 +86,7 @@ const Main = (props) => {
                   Withdraw
                 </button>
                 <div className="card-body text-center">
-                  AIRDROP <AirDrop />
+                  {/* AIRDROP <AirDrop stakingBalance={props.stakingBalance} /> */}
                 </div>
               </div>
             </main>
